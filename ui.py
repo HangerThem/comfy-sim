@@ -1,6 +1,11 @@
 import pygame
 import sys
 import random
+from pydualsense import *
+import time
+
+ds = pydualsense()
+ds.init()
 
 pygame.init()
 
@@ -22,13 +27,15 @@ click_cursor = pygame.transform.scale(click_cursor, (256, 256))
 bg_img = pygame.image.load('assets/peepo2.png')
 bg_img = pygame.transform.scale(bg_img, (WIDTH, HEIGHT))
 
-bg_mask = pygame.mask.from_surface(bg_img)  # create a mask from the background image
+# create a mask from the background image
+bg_mask = pygame.mask.from_surface(bg_img)
 
 pygame.mouse.set_visible(False)
 
 current_cursor = default_cursor
 
 OBJECT_CLICKED = pygame.USEREVENT + 1
+
 
 class Particle:
     def __init__(self, x, y, dx, dy):
@@ -44,7 +51,9 @@ class Particle:
         self.alpha -= 5  # fade out a bit each frame
 
     def draw(self, surface):
-        pygame.draw.circle(surface, (255, 105, 180, self.alpha), (int(self.x), int(self.y)), 3)
+        pygame.draw.circle(surface, (255, 105, 180, self.alpha),
+                           (int(self.x), int(self.y)), 3)
+
 
 # List of all particles
 particles = []
@@ -76,17 +85,21 @@ while running:
                 if bg_mask.get_at((event.pos[0], event.pos[1])):
                     pygame.event.post(pygame.event.Event(OBJECT_CLICKED))
                     for _ in range(25):
-                        particles.append(Particle(event.pos[0], event.pos[1], random.uniform(-3, 3), random.uniform(-3, 3)))
+                        particles.append(Particle(
+                            event.pos[0], event.pos[1], random.uniform(-3, 3), random.uniform(-3, 3)))
             except IndexError:
                 pass
         elif event.type == pygame.MOUSEBUTTONUP:
             current_cursor = default_cursor
         elif event.type == OBJECT_CLICKED:
-            print("Background image was clicked!")
+            ds.setLeftMotor(255)
+            time.sleep(0.1)
+            ds.setLeftMotor(0)
 
     # Remove particles that have faded out
     particles = [particle for particle in particles if particle.alpha > 0]
 
 # Done! Time to quit.
 pygame.quit()
+ds.close()
 sys.exit()
