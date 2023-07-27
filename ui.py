@@ -10,7 +10,7 @@ WHITE = (255, 255, 255)
 
 # Set up the display
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("ComfySim  ")
+pygame.display.set_caption("ComfySim")
 
 default_cursor = pygame.image.load('assets/hand.png')
 default_cursor = pygame.transform.scale(default_cursor, (256, 256))
