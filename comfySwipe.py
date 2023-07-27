@@ -22,12 +22,14 @@ cursor_positions = []
 colors = [[255, 20, 147], [238, 130, 238], [
     173, 216, 230], [255, 165, 0], [255, 0, 0]]
 
-colorNames = ["DeepPink", "Violet", "LightBlue", "Orange", "Red"]
+colorNames = ["Deep Pink", "Violet", "Light Blue", "Orange", "Red"]
 
 colorIndex = 0
 color = colors[colorIndex]
 
 motorPercent = 50
+
+running = True
 
 
 def dpad_right(state):
@@ -70,17 +72,17 @@ def down_motor(state):
         motorPercent = 100
 
 
+def add_cursor_position(x, y):
+    cursor_positions.append((x, y, pygame.time.get_ticks()))
+
+
 ds.dpad_left += dpad_left
 ds.dpad_right += dpad_right
 ds.l1_changed += up_motor
 ds.r1_changed += down_motor
 
 
-def add_cursor_position(x, y):
-    cursor_positions.append((x, y, pygame.time.get_ticks()))
-
-
-while True:
+while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -93,7 +95,7 @@ while True:
     dx, dy = cx - x, cy - y
     dt = ct - t
 
-    speed = ((dx ** 2 + dy ** 2) ** 0.5) / dt * 150
+    speed = ((dx ** 2 + dy ** 2) ** 0.5) / dt * 175
 
     speed = max(0, min(speed, 255))
 
@@ -112,16 +114,7 @@ while True:
     g = int(color[1] * speed / 255)
     b = int(color[2] * speed / 255)
     ds.light.setColorI(r, g, b)
-    screen.fill((255, 20, 147))
-
-    font = pygame.font.SysFont("monospace", 15)
-
-    text = font.render("Color: " + colorNames[colorIndex], 1, (255, 255, 255))
-    screen.blit(text, (10, 10))
-
-    text = font.render(
-        "Motor: " + str(motorPercent) + "%", 1, (255, 255, 255))
-    screen.blit(text, (10, 30))
+    screen.fill((color))
 
     for i in range(1, len(cursor_positions)):
         thickness = int(i*1.2)
@@ -129,6 +122,26 @@ while True:
                          cursor_positions[i - 1][:2], cursor_positions[i][:2], thickness)
         pygame.draw.circle(screen, (255, 255, 255),
                            cursor_positions[i][:2], thickness // 2)
+
+    pygame.draw.rect(screen, (0, 0, 0), (0, 0, 360, 520), 5)
+
+    font = pygame.font.SysFont("roboto", 15)
+
+    text = font.render("Color: " + colorNames[colorIndex], 1, (0, 0, 0))
+    screen.blit(text, (10, 10))
+
+    text = font.render(
+        "Motor: " + str(motorPercent) + "%", 1, (0, 0, 0))
+    screen.blit(text, (10, 30))
+
+    text = font.render(
+        "Intensity: " + str(int(speed)), 1, (0, 0, 0))
+    screen.blit(text, (10, 50))
+    
+    # add interactive button to change the color
+    # add interactive button to change the motor intensity
+    
+    
 
     pygame.display.update()
 
